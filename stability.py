@@ -1,0 +1,130 @@
+# Dependencies (numpy, scipy, matplotlib)
+import numpy
+from scipy.spatial import ConvexHull, Delaunay
+import matplotlib.pyplot as plt
+
+# Global variables for center of mass
+x_com = 0
+y_com = 0
+z_com = 0
+
+# Global lists storing occupied coordinates for COM calculations
+mass_list_x = []
+mass_list_y = []
+mass_list_z = []
+
+# Global lists to create support polygon point cloud
+support_list_x = []
+support_list_z = []
+
+# Standardized unit of mass
+mass = 1
+
+# Graph for detecting multiple structures with Dijstra's Algorithm
+graph = {}
+
+# Initializing example 3D input function would receive (params x,y,z)
+array = numpy.zeros((6, 10, 6))
+
+########################################################################
+''' This block generates a build that should fail '''
+
+# Adding 1x1x2 block (length x width x height)
+array[1][0][0] = '1'
+array[1][1][0] = '1'
+
+# Adding 4x1x1 block on top of 1x1x2 block
+array[1][2][0] = '1'
+array[2][2][0] = '1'
+array[3][2][0] = '1'
+array[4][2][0] = '1'
+
+''' This block generates a build that should succeed '''
+
+# # Adding 1x1x2 block (length x width x height)
+# array[1][0][0] = '1'
+# array[1][1][0] = '1'
+#
+# # Adding 4x1x1 block on top of 1x1x2 block
+# array[1][2][0] = '1'
+# array[2][2][0] = '1'
+# array[3][2][0] = '1'
+# array[4][2][0] = '1'
+
+########################################################################
+
+
+def in_hull(p, hull):
+    if not isinstance(hull, Delaunay):
+        hull = Delaunay(hull)
+
+    return hull.find_simplex(p) >= 0
+
+
+# Outer boundary of structure's base (y=0)
+# Implementation done using a convex hull (scipy)
+def in_support_polygon(point):
+    # points = numpy.random.randint(1, 10, size=(3, 2))   # 6 random points in 2-D X-Z space
+    points = numpy.column_stack((support_list_x, support_list_z))
+
+    if (len(points)) >= 3:
+        # Three following lines are for giving visual representation of convex hull of a point cloud
+        # Can be commented out in ML project
+        hull = ConvexHull(points)
+        for simplex in hull.simplices:
+            plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
+        plt.show()
+
+        # Pass in point and point cloud to in_hull function for Delaunay triangulation
+        return in_hull([point], points)
+    else:
+        for item in points:
+            if item.tolist() == point:
+                return True
+        return False
+
+
+def calc_center_of_mass(list_param):
+    temp_num = 0  # for temporary calculations for equations
+    temp_dem = 0  # for temporary calculations for equations
+    for item in list_param:
+        temp_num += mass*item
+        temp_dem += mass
+        # print(item)
+    return temp_num / temp_dem
+
+
+def find_center_of_mass(array_param):
+    global x_com, y_com, z_com, mass_list_x, mass_list_y, mass_list_z, support_list_x, support_list_z
+    count = 0
+
+    for x in range(len(array_param)):
+        for y in range(len(array_param[x])):
+            for z in range(len(array_param[x, y])):
+                if array_param[x, y, z] == 1:
+                    # print(x, y, z)
+                    count += 1  # coordinates occupied
+                    mass_list_x.append(x)
+                    mass_list_y.append(y)
+                    mass_list_z.append(z)
+                    if y == 0:
+                        support_list_x.append(x)
+                        support_list_z.append(z)
+
+    x_com = calc_center_of_mass(mass_list_x)
+    y_com = calc_center_of_mass(mass_list_y)
+    z_com = calc_center_of_mass(mass_list_z)
+    print('Center of Mass X: %f' % x_com)
+    print('Center of Mass Y: %f' % y_com)
+    print('Center of Mass Z: %f' % z_com)
+    return
+
+
+def calculate_stability(array_param):
+    find_center_of_mass(array_param)
+    return
+
+
+calculate_stability(array)
+print(in_support_polygon([x_com, z_com]), '- point (%d, %d) is not inside the support polygon' % (x_com, z_com))
+print(in_support_polygon([1, 0]), '- point (1, 0) is inside the support polygon')
