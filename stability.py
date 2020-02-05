@@ -1,6 +1,7 @@
 # Dependencies (numpy, scipy, matplotlib)
 import numpy
 from scipy.spatial import ConvexHull, Delaunay
+from scipy.optimize import linprog
 import matplotlib.pyplot as plt
 
 # Global variables for center of mass
@@ -29,18 +30,6 @@ array = numpy.zeros((6, 10, 6))
 ########################################################################
 ''' This block generates a build that should fail '''
 
-# Adding 1x1x2 block (length x width x height)
-array[1][0][0] = '1'
-array[1][1][0] = '1'
-
-# Adding 4x1x1 block on top of 1x1x2 block
-array[1][2][0] = '1'
-array[2][2][0] = '1'
-array[3][2][0] = '1'
-array[4][2][0] = '1'
-
-''' This block generates a build that should succeed '''
-
 # # Adding 1x1x2 block (length x width x height)
 # array[1][0][0] = '1'
 # array[1][1][0] = '1'
@@ -51,20 +40,51 @@ array[4][2][0] = '1'
 # array[3][2][0] = '1'
 # array[4][2][0] = '1'
 
+''' This block generates a build that should succeed '''
+
+# Adding 4x2x1 base (length x width x height)
+array[1][0][1] = '1'
+array[2][0][1] = '1'
+array[3][0][1] = '1'
+array[4][0][1] = '1'
+array[1][0][2] = '1'
+array[2][0][2] = '1'
+array[3][0][2] = '1'
+array[4][0][2] = '1'
+
+# Adding 1x1x2 block (length x width x height) on top of base
+array[2][1][1] = '1'
+array[2][2][1] = '1'
+
+# Adding 4x1x1 block on top of 1x1x2 block
+array[2][3][1] = '1'
+array[3][3][1] = '1'
+array[4][3][1] = '1'
+array[5][3][1] = '1'
+
 ########################################################################
 
 
+# for 2D space
 def in_hull(p, hull):
     if not isinstance(hull, Delaunay):
         hull = Delaunay(hull)
 
     return hull.find_simplex(p) >= 0
 
+# def in_hull(points, x):
+#     n_points = len(points)
+#     n_dim = len(x)
+#     c = numpy.zeros(n_points)
+#     a = numpy.r_[points.T, numpy.ones((1, n_points))]
+#     b = numpy.r_[x, numpy.ones(1)]
+#     lp = linprog(c, A_eq=a, b_eq=b)
+#     return lp.success
 
-# Outer boundary of structure's base (y=0)
-# Implementation done using a convex hull (scipy)
+
+# If COM coordinates fall within support polygon, structure is stable
 def in_support_polygon(point):
-    # points = numpy.random.randint(1, 10, size=(3, 2))   # 6 random points in 2-D X-Z space
+    # points = numpy.random.randint(1, 10, size=(6, 3))   # 6 random points in 2-D X-Z space
     points = numpy.column_stack((support_list_x, support_list_z))
 
     if (len(points)) >= 3:
@@ -125,6 +145,12 @@ def calculate_stability(array_param):
     return
 
 
+def findStructures():
+
+
+# Running code
 calculate_stability(array)
-print(in_support_polygon([x_com, z_com]), '- point (%d, %d) is not inside the support polygon' % (x_com, z_com))
-print(in_support_polygon([1, 0]), '- point (1, 0) is inside the support polygon')
+if in_support_polygon([x_com, z_com]):
+    print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+else:
+    print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
