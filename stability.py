@@ -21,9 +21,6 @@ support_list_z = []
 # Standardized unit of mass
 mass = 1
 
-# Graph for detecting multiple structures with Dijstra's Algorithm
-graph = {}
-
 # Initializing example 3D input function would receive (params x,y,z)
 array = numpy.zeros((6, 10, 6))
 
@@ -145,12 +142,76 @@ def calculate_stability(array_param):
     return
 
 
-def findStructures():
+def findAdjacentNodes(array_param, coordinate):
+    neighbours = set()
+    # print(coordinate)
+    # list(coordinate)[0]
+    x = int(coordinate[0])
+    y = int(coordinate[1])
+    z = int(coordinate[2])
+    print(array_param)
+
+    try:
+        if array_param[x + 1][y][z] == 1:
+            neighbours.add(str(x+1) + str(y) + str(z))
+        if array_param[x - 1][y][z] == 1:
+            neighbours.add(str(x-1) + str(y) + str(z))
+        if array_param[x][y][z + 1] == 1:
+            neighbours.add(str(x) + str(y) + str(z+1))
+        if array_param[x][y][z - 1] == 1:
+            neighbours.add(str(x) + str(y) + str(z-1))
+        if array_param[x][y + 1][z] == 1:
+            neighbours.add(str(x) + str(y+1) + str(z))
+        return neighbours
+    except:
+        return set()
+
+
+# Graph for detecting multiple structures with Dijkstra's algorithm
+graph = {}
+
+
+def recursive_search(array_param, coordinate):
+    global graph
+    if coordinate not in graph:
+        # print(coordinate)
+        temp = findAdjacentNodes(array_param, coordinate)
+        # print(temp)
+        if len(temp) == 0:
+            return
+        else:
+            graph[coordinate] = temp
+            # print(graph)
+            for item in graph[coordinate]:
+                recursive_search(array_param, item)
+    else:
+        return
+
+
+def findStructures(array_param):
+    for x in range(len(array_param)):
+        for y in range(len(array_param[x])):
+            if y == 0:
+                for z in range(len(array_param[x, y])):
+                    print('Run recursion function on this coordinate')
+
+    # parse graph
+    for x in range(len(array_param)):
+        for y in range(len(array_param[x])):
+            if y == 0:
+                for z in range(len(array_param[x, y])):
+                    print('Recursively check if every occupied x-z coordinate can go to another occupied x-z coordinate')
+                   
+    return
 
 
 # Running code
-calculate_stability(array)
-if in_support_polygon([x_com, z_com]):
-    print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
-else:
-    print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+# print(findStructures(array))
+recursive_search(array, '100')
+print(graph)
+
+# calculate_stability(array)
+# if in_support_polygon([x_com, z_com]):
+#     print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+# else:
+#     print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
