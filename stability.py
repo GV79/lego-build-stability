@@ -24,7 +24,8 @@ mass = 1
 array = numpy.zeros((6, 10, 6))
 
 #################################################################################
-''' Check /scenarioImages for visual representation '''
+''' Check /scenarioImages for visual representation in Lego Studio (LEGO CAD) '''
+''' All scenarios confirmed using stability feature in Lego Studio (LEGO CAD) '''
 ''' This block generates a build that should fail stability check: Scenario 1 '''
 
 # # Adding 1x1x2 block (width x length x height)
@@ -39,39 +40,39 @@ array = numpy.zeros((6, 10, 6))
 
 ''' This block generates a build that should pass stability check: Scenario 2 '''
 
-# Adding 2x4x1 base (width x length x height)
-array[1][0][1] = '1'
-array[2][0][1] = '1'
-array[3][0][1] = '1'
-array[4][0][1] = '1'
-array[1][0][2] = '1'
-array[2][0][2] = '1'
-array[3][0][2] = '1'
-array[4][0][2] = '1'
-
-# Adding 1x1x2 block (width x length x height) on top of base
-array[2][1][1] = '1'
-array[2][2][1] = '1'
-
-# Adding 1x4x1 block on top of 1x1x2 block
-array[2][3][1] = '1'
-array[3][3][1] = '1'
-array[4][3][1] = '1'
-array[5][3][1] = '1'
+# # Adding 2x4x1 base (width x length x height)
+# array[1][0][1] = '1'
+# array[2][0][1] = '1'
+# array[3][0][1] = '1'
+# array[4][0][1] = '1'
+# array[1][0][2] = '1'
+# array[2][0][2] = '1'
+# array[3][0][2] = '1'
+# array[4][0][2] = '1'
+#
+# # Adding 1x1x2 block (width x length x height) on top of base
+# array[2][1][1] = '1'
+# array[2][2][1] = '1'
+#
+# # Adding 1x4x1 block on top of 1x1x2 block
+# array[2][3][1] = '1'
+# array[3][3][1] = '1'
+# array[4][3][1] = '1'
+# array[5][3][1] = '1'
 
 ''' This block generates a build that should pass stability check: Scenario 3 '''
 
-# # Adding 1x1x5 block
-#
-# array[1][0][0] = '1'
-# array[1][1][0] = '1'
-# array[1][2][0] = '1'
-# array[1][3][0] = '1'
-# array[1][4][0] = '1'
-#
-# # Adding 1x2x1 block on top
-# array[1][5][0] = '1'
-# array[2][5][0] = '1'
+# Adding 1x1x5 block
+array[1][0][0] = '1'
+array[1][1][0] = '1'
+array[1][2][0] = '1'
+array[1][3][0] = '1'
+array[1][4][0] = '1'
+
+# Adding 1x2x1 block on top
+array[1][5][0] = '1'
+array[2][5][0] = '1'
+array[3][5][0] = '1'
 
 #################################################################################
 
@@ -111,7 +112,6 @@ def calc_center_of_mass(list_param):
     for item in list_param:
         temp_num += mass*item
         temp_dem += mass
-        # print(item)
     return temp_num / temp_dem
 
 
