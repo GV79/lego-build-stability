@@ -13,13 +13,14 @@ mass_list_y = []
 mass_list_z = []
 
 # Global lists to create support polygon point cloud
+# Might be better to just combine these two into a support_set
 support_list_x = []
 support_list_z = []
 
 # Standardized unit of mass
 mass = 1
 
-# Initializing example 3D input function would receive (params x,y,z)
+# Initializing example 3D input function would receive (params x=6,y=10,z=6)
 array = numpy.zeros((6, 10, 6))
 
 #################################################################################
@@ -58,6 +59,20 @@ array[3][3][1] = '1'
 array[4][3][1] = '1'
 array[5][3][1] = '1'
 
+''' This block generates a build that should pass stability check: Scenario 3 '''
+
+# # Adding 1x1x5 block
+#
+# array[1][0][0] = '1'
+# array[1][1][0] = '1'
+# array[1][2][0] = '1'
+# array[1][3][0] = '1'
+# array[1][4][0] = '1'
+#
+# # Adding 1x2x1 block on top
+# array[1][5][0] = '1'
+# array[2][5][0] = '1'
+
 #################################################################################
 
 
@@ -69,25 +84,24 @@ def in_hull(p, hull):
     return hull.find_simplex(p) >= 0
 
 
-# Function that determines whether build is stable
+# Function that determines whether build is stable with param 'point' - xCOM, zCOM
 # Based on whether x_com and z_com COM values fall within support polygon
 def in_support_polygon(point):
+    support_polygon_vertices = list()  # array containing x-z coordinates
     # points = numpy.random.randint(1, 10, size=(6, 3))   # generate 6 random points in 2-D space
-    points = numpy.column_stack((support_list_x, support_list_z))
+    points = numpy.column_stack((support_list_x, support_list_z))  # X-Z coordinate that are y=0
 
-    if (len(points)) >= 3:
-        # Lines 80-83 can be commented out when used in actual learning process
-        hull = ConvexHull(points)
-        for simplex in hull.simplices:
-            plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
-        plt.show()  # gives visual representation of convex hull of a point cloud
+    hull = ConvexHull(points)
+    for item in hull.vertices:
+        support_polygon_vertices.append(points[item])
+    print(support_polygon_vertices)
 
-        return in_hull([point], points)  # Pass in point and point cloud to in_hull function
-    else:
-        for item in points:
-            if item.tolist() == point:
-                return True
-        return False
+    # 3 following lines can be commented out when used in actual learning process
+    for simplex in hull.simplices:
+        plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
+    plt.show()  # gives visual representation of convex hull of a point cloud
+
+    return in_hull([point], points)  # Pass in point and point cloud to in_hull function
 
 
 # Function that uses center of mass equation
@@ -109,12 +123,19 @@ def find_center_of_mass(array_param):
         for y in range(len(array_param[x])):
             for z in range(len(array_param[x, y])):
                 if array_param[x, y, z] == 1:
-                    mass_list_x.append(x)
-                    mass_list_y.append(y)
-                    mass_list_z.append(z)
+                    mass_list_x.append(x+0.5)
+                    mass_list_y.append(y+0.5)
+                    mass_list_z.append(z+0.5)
                     if y == 0:
+                        # Each point has a boundary of 4 vertices
                         support_list_x.append(x)
                         support_list_z.append(z)
+                        support_list_x.append(x+1)
+                        support_list_z.append(z)
+                        support_list_x.append(x)
+                        support_list_z.append(z+1)
+                        support_list_x.append(x+1)
+                        support_list_z.append(z+1)
 
     x_com = calc_center_of_mass(mass_list_x)
     y_com = calc_center_of_mass(mass_list_y)
@@ -206,11 +227,13 @@ def is_path_available(array_param, coord_start, coord_end):
 
 ''' Executing code'''
 # print(find_structures(array))
-recursive_search(array, '100')
-print(graph)
+# recursive_search(array, '100')
+# print(graph)
 
-# calculate_stability(array)
-# if in_support_polygon([x_com, z_com]):
-#     print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
-# else:
-#     print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+calculate_stability(array)
+if in_support_polygon([x_com, z_com]):
+    print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+    print('Therefore, the structure is stable.')
+else:
+    print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+    print('Therefore, the structure is unstable.')
