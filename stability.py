@@ -198,42 +198,54 @@ def recursive_search(array_param, coordinate):
         return
 
 
+# Can probably save time for edge case by checking if every x-z coordinate is already taken up
 def find_structures(array_param):
     occupied_x_z_list = list()
     for x in range(len(array_param)):
         for y in range(len(array_param[x])):
             if y == 0:
                 for z in range(len(array_param[x, y])):
-                    print('Run recursion search on this coordinate')
+                    recursive_search(array, '100')
                     occupied_x_z_list.append([x, y, z])
 
     # print('Recursively check in list if every occupied x-z coordinate can go to another occupied x-z coordinate')
+    # # Need to optimize
+    # if find_shortest_path(graph, '100', '111', path=[]) is not None:
+    #     print('There exists a path...')
+    # else:
+    #     print('No path found...')
     return
 
 
-def is_path_available(array_param, coord_start, coord_end):
-    visited = set()
-    visited.add(coord_start)
-    for item in graph[coord_start]:
-        if item == coord_end:
-            return True
-        elif item in visited:
-            continue
-        else:
-            visited.add(item)
-            return is_path_available(array_param, item, coord_end)
-    return False
+def find_shortest_path(graph_param, start, end, path=[]):
+    path = path + [start]
+    if start == end:
+        return path
+    if start not in graph_param:
+        return None
+    shortest = None
+    for node in graph_param[start]:
+        if node not in path:
+            new_path = find_shortest_path(graph_param, node, end, path)
+            if new_path:
+                if not shortest or len(new_path) < len(shortest):
+                    shortest = new_path
+    return shortest
 
 
 ''' Executing code'''
-# print(find_structures(array))
+print(find_structures(array))
 # recursive_search(array, '100')
-# print(graph)
+print(graph)
+# if find_shortest_path(graph, '100', '111', path=[]) is not None:
+#     print('There exists a path...')
+# else:
+#     print('No path found...')
 
-calculate_stability(array)
-if in_support_polygon([x_com, z_com]):
-    print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
-    print('Therefore, the structure is stable.')
-else:
-    print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
-    print('Therefore, the structure is unstable.')
+# calculate_stability(array)
+# if in_support_polygon([x_com, z_com]):
+#     print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+#     print('Therefore, the structure is stable.')
+# else:
+#     print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+#     print('Therefore, the structure is unstable.')
