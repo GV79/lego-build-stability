@@ -21,7 +21,7 @@ support_list_z = []
 mass = 1
 
 # Initializing example 3D input function would receive (params x=6,y=10,z=6)
-array = numpy.zeros((6, 10, 6))
+array = numpy.zeros((10, 10, 6))
 
 #################################################################################
 ''' Check /scenarioImages for visual representation in Lego Studio (LEGO CAD) '''
@@ -62,17 +62,46 @@ array = numpy.zeros((6, 10, 6))
 
 ''' This block generates a build that should pass stability check: Scenario 3 '''
 
-# Adding 1x1x5 block
-array[1][0][0] = '1'
-array[1][1][0] = '1'
-array[1][2][0] = '1'
-array[1][3][0] = '1'
-array[1][4][0] = '1'
+# # Adding 1x1x5 block
+# array[1][0][0] = '1'
+# array[1][1][0] = '1'
+# array[1][2][0] = '1'
+# array[1][3][0] = '1'
+# array[1][4][0] = '1'
+#
+# # Adding 1x2x1 block on top
+# array[1][5][0] = '1'
+# array[2][5][0] = '1'
+# array[3][5][0] = '1'
 
-# Adding 1x2x1 block on top
-array[1][5][0] = '1'
-array[2][5][0] = '1'
-array[3][5][0] = '1'
+''' This block generates a build that should pass stability check: Scenario 3 '''
+
+# Adding 1x4x1 block
+array[0][0][1] = '1'
+array[1][0][1] = '1'
+array[2][0][1] = '1'
+array[3][0][1] = '1'
+
+# Adding 1x4x1 block on top
+array[1][1][1] = '1'
+array[2][1][1] = '1'
+array[3][1][1] = '1'
+array[4][1][1] = '1'
+
+# # Adding 1x2x3 block on top
+array[8][0][2] = '1'
+array[9][0][2] = '1'
+array[8][1][2] = '1'
+array[9][1][2] = '1'
+array[8][2][2] = '1'
+array[9][2][2] = '1'
+array[8][3][2] = '1'
+array[9][3][2] = '1'
+array[8][4][2] = '1'
+array[9][4][2] = '1'
+
+# # Adding separate structure
+
 
 #################################################################################
 
@@ -148,19 +177,24 @@ def find_center_of_mass(array_param):
 
 # Function that will execute multiple structure searching and then individual COM calculations
 def calculate_stability(array_param):
-    find_center_of_mass(array_param)
+    structures = find_structures(array_param)
+    # print('%d structure(s) were found within the array' % find_structures(array_param))
+    if structures == 1:
+        find_center_of_mass(array_param)
+    else:
+        print('%d structure(s) were found within the array' % structures)
     return
 
 
 # Function that finds neighbouring coordinates
 def find_adjacent_nodes(array_param, coordinate):
+    if array_param[int(coordinate[0]), int(coordinate[1]), int(coordinate[2])] == 0:
+        return []
+
     neighbours = set()
-    # print(coordinate)
-    # list(coordinate)[0]
     x = int(coordinate[0])
     y = int(coordinate[1])
     z = int(coordinate[2])
-    print(array_param)
 
     try:
         if array_param[x + 1][y][z] == 1:
@@ -182,39 +216,69 @@ def find_adjacent_nodes(array_param, coordinate):
 graph = {}
 
 
+# Creating global object with all paths
 def recursive_search(array_param, coordinate):
     global graph
     if coordinate not in graph:
         temp = find_adjacent_nodes(array_param, coordinate)
-        # print(temp)
-        if len(temp) == 0:
+        if len(temp) == 0 or array_param[int(coordinate[0]), int(coordinate[1]), int(coordinate[2])] == 0:
             return
         else:
             graph[coordinate] = temp
-            # print(graph)
             for item in graph[coordinate]:
                 recursive_search(array_param, item)
     else:
         return
 
 
-# Can probably save time for edge case by checking if every x-z coordinate is already taken up
+# Recursive search that returns an array of connections for a given coord
+def recursive_search_item(array_param, coordinate, temp_dict):
+    if coordinate not in temp_dict:
+        temp = find_adjacent_nodes(array_param, coordinate)
+        if len(temp) == 0 or array_param[int(coordinate[0]), int(coordinate[1]), int(coordinate[2])] == 0:
+            return temp_dict
+        else:
+            temp_dict[coordinate] = temp
+            for item in temp_dict[coordinate]:
+                recursive_search_item(array_param, item, temp_dict)
+            return temp_dict
+    else:
+        return temp_dict
+
+
+# Looks for multiple structures within 3D array
 def find_structures(array_param):
+    structures = 1
     occupied_x_z_list = list()
+    blacklist = dict()
+    # for coordinates that have been counted as part of a structure, can ignore all nodes directly linked
+
     for x in range(len(array_param)):
         for y in range(len(array_param[x])):
             if y == 0:
                 for z in range(len(array_param[x, y])):
-                    recursive_search(array, '100')
-                    occupied_x_z_list.append([x, y, z])
+                    if array_param[x, y, z] == 1:
+                        recursive_search(array, str(x)+str(y)+str(z))
+                        occupied_x_z_list.append([x, y, z])
+    if len(graph) == 0:
+        return 0
 
-    # print('Recursively check in list if every occupied x-z coordinate can go to another occupied x-z coordinate')
-    # # Need to optimize
-    # if find_shortest_path(graph, '100', '111', path=[]) is not None:
-    #     print('There exists a path...')
-    # else:
-    #     print('No path found...')
-    return
+    if len(array_param) * len(array_param[x, y]) == len(occupied_x_z_list):
+        return 1
+
+    # print(occupied_x_z_list)
+    for i in occupied_x_z_list:
+        coord_string_one = str(i[0]) + str(i[1]) + str(i[2])
+        for j in occupied_x_z_list:
+            coord_string_two = str(j[0]) + str(j[1]) + str(j[2])
+            if coord_string_one in blacklist or coord_string_two in blacklist:
+                continue
+            elif i != j:
+                if find_shortest_path(graph, coord_string_one, coord_string_two, []) is None:
+                    blacklist.update(recursive_search_item(array_param, coord_string_one, {}))
+                    blacklist.update(recursive_search_item(array_param, coord_string_two, {}))
+                    structures += 1
+    return structures
 
 
 def find_shortest_path(graph_param, start, end, path=[]):
@@ -234,18 +298,10 @@ def find_shortest_path(graph_param, start, end, path=[]):
 
 
 ''' Executing code'''
-print(find_structures(array))
-# recursive_search(array, '100')
-print(graph)
-# if find_shortest_path(graph, '100', '111', path=[]) is not None:
-#     print('There exists a path...')
-# else:
-#     print('No path found...')
-
-# calculate_stability(array)
-# if in_support_polygon([x_com, z_com]):
-#     print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
-#     print('Therefore, the structure is stable.')
-# else:
-#     print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
-#     print('Therefore, the structure is unstable.')
+calculate_stability(array)
+if in_support_polygon([x_com, z_com]):
+    print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+    print('Therefore, the structure is stable.')
+else:
+    print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+    print('Therefore, the structure is unstable.')
