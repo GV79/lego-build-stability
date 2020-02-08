@@ -2,6 +2,11 @@ import numpy
 from scipy.spatial import ConvexHull, Delaunay
 import matplotlib.pyplot as plt
 
+# fix edge case where dimensions > 1 digit
+
+# 2D array of structures
+structures_list = []
+
 # Global variables for center of mass
 x_com = 0
 y_com = 0
@@ -181,32 +186,44 @@ def calculate_stability(array_param):
     # print('%d structure(s) were found within the array' % find_structures(array_param))
     if structures == 1:
         find_center_of_mass(array_param)
+        if in_support_polygon([x_com, z_com]):
+            print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+            print('Therefore, the structure is stable.')
+        else:
+            print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+            print('Therefore, the structure is unstable.')
     else:
+        print(structures_list)
+        # for i in structures_list:
+        #     print(i)
+        #     for j in i:
+        #         print(j)
         print('%d structure(s) were found within the array' % structures)
     return
 
 
 # Function that finds neighbouring coordinates
 def find_adjacent_nodes(array_param, coordinate):
-    if array_param[int(coordinate[0]), int(coordinate[1]), int(coordinate[2])] == 0:
+    coord_parsed = coordinate.split("-")
+    if array_param[int(coord_parsed[0]), int(coord_parsed[1]), int(coord_parsed[2])] == 0:
         return []
 
     neighbours = set()
-    x = int(coordinate[0])
-    y = int(coordinate[1])
-    z = int(coordinate[2])
+    x = int(coord_parsed[0])
+    y = int(coord_parsed[1])
+    z = int( coord_parsed[2])
 
     try:
         if array_param[x + 1][y][z] == 1:
-            neighbours.add(str(x+1) + str(y) + str(z))
+            neighbours.add(str(x+1) + "-" + str(y) + "-" + str(z))
         if array_param[x - 1][y][z] == 1:
-            neighbours.add(str(x-1) + str(y) + str(z))
+            neighbours.add(str(x-1) + "-" + str(y) + "-" + str(z))
         if array_param[x][y][z + 1] == 1:
-            neighbours.add(str(x) + str(y) + str(z+1))
+            neighbours.add(str(x) + "-" + str(y) + "-" + str(z+1))
         if array_param[x][y][z - 1] == 1:
-            neighbours.add(str(x) + str(y) + str(z-1))
+            neighbours.add(str(x) + "-" + str(y) + "-" + str(z-1))
         if array_param[x][y + 1][z] == 1:
-            neighbours.add(str(x) + str(y+1) + str(z))
+            neighbours.add(str(x) + "-" + str(y+1) + "-" + str(z))
         return neighbours
     except:
         return set()
@@ -221,7 +238,8 @@ def recursive_search(array_param, coordinate):
     global graph
     if coordinate not in graph:
         temp = find_adjacent_nodes(array_param, coordinate)
-        if len(temp) == 0 or array_param[int(coordinate[0]), int(coordinate[1]), int(coordinate[2])] == 0:
+        coord_parsed = coordinate.split("-")
+        if len(temp) == 0 or array_param[int(coord_parsed[0]), int(coord_parsed[1]), int(coord_parsed[2])] == 0:
             return
         else:
             graph[coordinate] = temp
@@ -235,7 +253,8 @@ def recursive_search(array_param, coordinate):
 def recursive_search_item(array_param, coordinate, temp_dict):
     if coordinate not in temp_dict:
         temp = find_adjacent_nodes(array_param, coordinate)
-        if len(temp) == 0 or array_param[int(coordinate[0]), int(coordinate[1]), int(coordinate[2])] == 0:
+        coord_parsed = coordinate.split("-")
+        if len(temp) == 0 or array_param[int(coord_parsed[0]), int(coord_parsed[1]), int(coord_parsed[2])] == 0:
             return temp_dict
         else:
             temp_dict[coordinate] = temp
@@ -258,7 +277,8 @@ def find_structures(array_param):
             if y == 0:
                 for z in range(len(array_param[x, y])):
                     if array_param[x, y, z] == 1:
-                        recursive_search(array, str(x)+str(y)+str(z))
+                        # '-' is delimiter to avoid edge case where digits > 1
+                        recursive_search(array, str(x)+"-"+str(y)+"-"+str(z))
                         occupied_x_z_list.append([x, y, z])
     if len(graph) == 0:
         return 0
@@ -266,17 +286,20 @@ def find_structures(array_param):
     if len(array_param) * len(array_param[x, y]) == len(occupied_x_z_list):
         return 1
 
-    # print(occupied_x_z_list)
     for i in occupied_x_z_list:
-        coord_string_one = str(i[0]) + str(i[1]) + str(i[2])
+        coord_string_one = str(i[0]) + "-" + str(i[1]) + "-" + str(i[2])
         for j in occupied_x_z_list:
-            coord_string_two = str(j[0]) + str(j[1]) + str(j[2])
+            coord_string_two = str(j[0]) + "-" + str(j[1]) + "-" + str(j[2])
             if coord_string_one in blacklist or coord_string_two in blacklist:
                 continue
             elif i != j:
                 if find_shortest_path(graph, coord_string_one, coord_string_two, []) is None:
-                    blacklist.update(recursive_search_item(array_param, coord_string_one, {}))
-                    blacklist.update(recursive_search_item(array_param, coord_string_two, {}))
+                    temp_dict_one = recursive_search_item(array_param, coord_string_one, {})
+                    temp_dict_two = recursive_search_item(array_param, coord_string_two, {})
+                    blacklist.update(temp_dict_one)
+                    blacklist.update(temp_dict_two)
+                    structures_list.append(temp_dict_one.keys())
+                    structures_list.append(temp_dict_two.keys())
                     structures += 1
     return structures
 
@@ -299,9 +322,3 @@ def find_shortest_path(graph_param, start, end, path=[]):
 
 ''' Executing code'''
 calculate_stability(array)
-if in_support_polygon([x_com, z_com]):
-    print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
-    print('Therefore, the structure is stable.')
-else:
-    print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
-    print('Therefore, the structure is unstable.')
