@@ -2,28 +2,7 @@ import numpy
 from scipy.spatial import ConvexHull, Delaunay
 import matplotlib.pyplot as plt
 
-# fix edge case where dimensions > 1 digit
-
-# 2D array of structures
-structures_list = []
-
-# Global variables for center of mass
-x_com = 0
-y_com = 0
-z_com = 0
-
-# Global lists storing occupied coordinates for COM calculations
-mass_list_x = []
-mass_list_y = []
-mass_list_z = []
-
-# Global lists to create support polygon point cloud
-# Might be better to just combine these two into a support_set
-support_list_x = []
-support_list_z = []
-
-# Standardized unit of mass
-mass = 1
+''' Globals just for testing, when importing, run calculate_stability and pass in required params'''
 
 # Initializing example 3D input function would receive (params x=6,y=10,z=6)
 array = numpy.zeros((10, 10, 6))
@@ -67,44 +46,44 @@ array = numpy.zeros((10, 10, 6))
 
 ''' This block generates a build that should pass stability check: Scenario 3 '''
 
-# # Adding 1x1x5 block
-# array[1][0][0] = '1'
-# array[1][1][0] = '1'
-# array[1][2][0] = '1'
-# array[1][3][0] = '1'
-# array[1][4][0] = '1'
-#
-# # Adding 1x2x1 block on top
-# array[1][5][0] = '1'
-# array[2][5][0] = '1'
-# array[3][5][0] = '1'
+# Adding 1x1x5 block
+array[1][0][0] = '1'
+array[1][1][0] = '1'
+array[1][2][0] = '1'
+array[1][3][0] = '1'
+array[1][4][0] = '1'
+
+# Adding 1x2x1 block on top
+array[1][5][0] = '1'
+array[2][5][0] = '1'
+array[3][5][0] = '1'
 
 ''' This block generates a build that should pass stability check: Scenario 3 '''
-
-# Adding 1x4x1 block
-array[0][0][1] = '1'
-array[1][0][1] = '1'
-array[2][0][1] = '1'
-array[3][0][1] = '1'
-
-# Adding 1x4x1 block on top
-array[1][1][1] = '1'
-array[2][1][1] = '1'
-array[3][1][1] = '1'
-array[4][1][1] = '1'
-
+#
+# # Adding 1x4x1 block
+# array[0][0][1] = '1'
+# array[1][0][1] = '1'
+# array[2][0][1] = '1'
+# array[3][0][1] = '1'
+#
+# # Adding 1x4x1 block on top
+# array[1][1][1] = '1'
+# array[2][1][1] = '1'
+# array[3][1][1] = '1'
+# array[4][1][1] = '1'
+#
 # # Adding 1x2x3 block on top
-array[8][0][2] = '1'
-array[9][0][2] = '1'
-array[8][1][2] = '1'
-array[9][1][2] = '1'
-array[8][2][2] = '1'
-array[9][2][2] = '1'
-array[8][3][2] = '1'
-array[9][3][2] = '1'
-array[8][4][2] = '1'
-array[9][4][2] = '1'
-
+# array[8][0][2] = '1'
+# array[9][0][2] = '1'
+# array[8][1][2] = '1'
+# array[9][1][2] = '1'
+# array[8][2][2] = '1'
+# array[9][2][2] = '1'
+# array[8][3][2] = '1'
+# array[9][3][2] = '1'
+# array[8][4][2] = '1'
+# array[9][4][2] = '1'
+#
 # # Adding separate structure
 
 
@@ -119,12 +98,15 @@ def in_hull(p, hull):
     return hull.find_simplex(p) >= 0
 
 
-# Function that determines whether build is stable with param 'point' - xCOM, zCOM
-# Based on whether x_com and z_com COM values fall within support polygon
-def in_support_polygon(point):
+def in_support_polygon(point, support_list_x, support_list_z):
+    """
+        Function that determines whether build is stable with param 'point' - xCOM, zCOM
+        Based on whether x_com and z_com COM values fall within support polygon
+        Params support_list_x and support_list_z containing coordinates that make point cloud (maybe combine into one?)
+    """
     support_polygon_vertices = list()  # array containing x-z coordinates
     # points = numpy.random.randint(1, 10, size=(6, 3))   # generate 6 random points in 2-D space
-    points = numpy.column_stack((support_list_x, support_list_z))  # X-Z coordinate that are y=0
+    points = numpy.column_stack((support_list_x, support_list_z))  # X-Z coordinates where y=0
 
     hull = ConvexHull(points)
     for item in hull.vertices:
@@ -140,7 +122,7 @@ def in_support_polygon(point):
 
 
 # Function that uses center of mass equation
-def calc_center_of_mass(list_param):
+def calc_center_of_mass(list_param, mass):
     temp_num = 0  # for temporary calculations for equations
     temp_dem = 0  # for temporary calculations for equations
     for item in list_param:
@@ -151,7 +133,11 @@ def calc_center_of_mass(list_param):
 
 # Function that assigns center of mass x,y,z values to global vars
 def find_center_of_mass(array_param):
-    global x_com, y_com, z_com, mass_list_x, mass_list_y, mass_list_z, support_list_x, support_list_z
+    mass_list_x = []
+    mass_list_y = []
+    mass_list_z = []
+    support_list_x = []
+    support_list_z = []
 
     for x in range(len(array_param)):
         for y in range(len(array_param[x])):
@@ -171,34 +157,65 @@ def find_center_of_mass(array_param):
                         support_list_x.append(x+1)
                         support_list_z.append(z+1)
 
-    x_com = calc_center_of_mass(mass_list_x)
-    y_com = calc_center_of_mass(mass_list_y)
-    z_com = calc_center_of_mass(mass_list_z)
+    x_com = calc_center_of_mass(mass_list_x, 1)  # variables storing center of masses for each axis
+    y_com = calc_center_of_mass(mass_list_y, 1)
+    z_com = calc_center_of_mass(mass_list_z, 1)
     print('Center of Mass X: %f' % x_com)
     print('Center of Mass Y: %f' % y_com)
     print('Center of Mass Z: %f' % z_com)
-    return
-
+    return {
+        "x_com": x_com,
+        "y_com": y_com,
+        "z_com": z_com,
+        "support_list_x": support_list_x,
+        "support_list_z": support_list_z
+    }
 
 # Function that will execute multiple structure searching and then individual COM calculations
-def calculate_stability(array_param):
-    structures = find_structures(array_param)
-    # print('%d structure(s) were found within the array' % find_structures(array_param))
+def calculate_stability(array_param, x, y, z):
+    """
+        instead of passing x y z for creating new numpy arrays for each structure, could look at
+        each structure's bounds and create a minimally sized array to wrap it so that its faster
+    """
+    structures_obj = find_structures(array_param)
+    structures = structures_obj["structures"]
+    # structures_list = structures_obj["structures_list"]
+
+    print('%d structure(s) were found within the array' % structures)
+
     if structures == 1:
-        find_center_of_mass(array_param)
-        if in_support_polygon([x_com, z_com]):
+        com_object = find_center_of_mass(array_param)
+        x_com = com_object["x_com"]
+        z_com = com_object["z_com"]
+        support_list_x = com_object["support_list_x"]
+        support_list_z = com_object["support_list_z"]
+        if in_support_polygon([x_com, z_com], support_list_x, support_list_z):
             print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
             print('Therefore, the structure is stable.')
         else:
             print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
             print('Therefore, the structure is unstable.')
     else:
-        print(structures_list)
+        # print(structures_list)
         # for i in structures_list:
-        #     print(i)
+        #     temp_world_array = numpy.zeros((x, y, z))
         #     for j in i:
-        #         print(j)
-        print('%d structure(s) were found within the array' % structures)
+        #         coords_parsed = j.split("-")
+        #         temp_world_array[coords_parsed[0], coords_parsed[1], coords_parsed[2]] = 1
+        #     find_center_of_mass(temp_world_array)
+        #   x_com = com_object["x_com"]
+        #   z_com = com_object["z_com"]
+        #   support_list_x = com_object["support_list_x"]
+        #   support_list_z = com_object["support_list_z"]
+        #     if in_support_polygon([x_com, z_com], support_list_x, support_list_z):
+        #         print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
+        #         print('Therefore, the structure is stable.')
+        #     else:
+        #         print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
+        #         print('Therefore, the structure is unstable.')
+
+        ''' need to refactor to remove globals and pass them as params '''
+
     return
 
 
@@ -211,7 +228,7 @@ def find_adjacent_nodes(array_param, coordinate):
     neighbours = set()
     x = int(coord_parsed[0])
     y = int(coord_parsed[1])
-    z = int( coord_parsed[2])
+    z = int(coord_parsed[2])
 
     try:
         if array_param[x + 1][y][z] == 1:
@@ -267,21 +284,22 @@ def recursive_search_item(array_param, coordinate, temp_dict):
 
 # Looks for multiple structures within 3D array
 def find_structures(array_param):
+    structures_list = []  # 2D array containing the different structures found in array
     structures = 1
     occupied_x_z_list = list()
     blacklist = dict()
-    # for coordinates that have been counted as part of a structure, can ignore all nodes directly linked
+    # blacklist: for coordinates that have been counted as part of a structure, can ignore all nodes directly linked
 
     for x in range(len(array_param)):
         for y in range(len(array_param[x])):
             if y == 0:
                 for z in range(len(array_param[x, y])):
                     if array_param[x, y, z] == 1:
-                        # '-' is delimiter to avoid edge case where digits > 1
-                        recursive_search(array, str(x)+"-"+str(y)+"-"+str(z))
+                        # '-' is delimiter between coordinates
+                        recursive_search(array_param, str(x)+"-"+str(y)+"-"+str(z))
                         occupied_x_z_list.append([x, y, z])
-    if len(graph) == 0:
-        return 0
+    # if len(graph) == 0:
+    #     return 0
 
     if len(array_param) * len(array_param[x, y]) == len(occupied_x_z_list):
         return 1
@@ -301,7 +319,7 @@ def find_structures(array_param):
                     structures_list.append(temp_dict_one.keys())
                     structures_list.append(temp_dict_two.keys())
                     structures += 1
-    return structures
+    return {"structures": structures, "structures_list": structures_list}
 
 
 def find_shortest_path(graph_param, start, end, path=[]):
@@ -321,4 +339,6 @@ def find_shortest_path(graph_param, start, end, path=[]):
 
 
 ''' Executing code'''
-calculate_stability(array)
+calculate_stability(array, 6, 10, 6)
+
+# General function will take in parameters x, y, z for building the numpy.zeros array
