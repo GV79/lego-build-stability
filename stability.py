@@ -24,25 +24,25 @@ array = numpy.zeros((10, 10, 6))
 
 ''' This block generates a build that should pass stability check: Scenario 2 '''
 
-# # Adding 2x4x1 base (width x length x height)
-# array[1][0][1] = '1'
-# array[2][0][1] = '1'
-# array[3][0][1] = '1'
-# array[4][0][1] = '1'
-# array[1][0][2] = '1'
-# array[2][0][2] = '1'
-# array[3][0][2] = '1'
-# array[4][0][2] = '1'
-#
-# # Adding 1x1x2 block (width x length x height) on top of base
-# array[2][1][1] = '1'
-# array[2][2][1] = '1'
-#
-# # Adding 1x4x1 block on top of 1x1x2 block
-# array[2][3][1] = '1'
-# array[3][3][1] = '1'
-# array[4][3][1] = '1'
-# array[5][3][1] = '1'
+# Adding 2x4x1 base (width x length x height)
+array[1][0][1] = '1'
+array[2][0][1] = '1'
+array[3][0][1] = '1'
+array[4][0][1] = '1'
+array[1][0][2] = '1'
+array[2][0][2] = '1'
+array[3][0][2] = '1'
+array[4][0][2] = '1'
+
+# Adding 1x1x2 block (width x length x height) on top of base
+array[2][1][1] = '1'
+array[2][2][1] = '1'
+
+# Adding 1x4x1 block on top of 1x1x2 block
+array[2][3][1] = '1'
+array[3][3][1] = '1'
+array[4][3][1] = '1'
+array[5][3][1] = '1'
 
 ''' This block generates a build that should pass stability check: Scenario 3 '''
 
@@ -116,6 +116,9 @@ def in_support_polygon(point, support_list_x, support_list_z):
     # 3 following lines can be commented out when used in actual learning process
     for simplex in hull.simplices:
         plt.plot(points[simplex, 0], points[simplex, 1], 'k-')
+        plt.title('Boundary of Support Polygon')
+        plt.xlabel('x')
+        plt.ylabel('z', rotation=0)
     plt.show()  # gives visual representation of convex hull of a point cloud
 
     return in_hull([point], points)  # Pass in point and point cloud to in_hull function
@@ -131,7 +134,7 @@ def calc_center_of_mass(list_param, mass):
     return temp_num / temp_dem
 
 
-# Function that assigns center of mass x,y,z values to global vars
+# Function that returns center of mass x,y,z values
 def find_center_of_mass(array_param):
     mass_list_x = []
     mass_list_y = []
@@ -148,7 +151,6 @@ def find_center_of_mass(array_param):
                     mass_list_z.append(z+0.5)
                     if y == 0:
                         # Each point has a boundary of 4 vertices
-                        print(x, y, z)
                         support_list_x.append(x)
                         support_list_z.append(z)
                         support_list_x.append(x+1)
@@ -340,6 +342,7 @@ def find_structures(array_param):
     return {"structures": structures, "structures_list": structures_list}
 
 
+# Returns null if no path between coordinates (for multiple structure finding)
 def find_shortest_path(graph_param, start, end, path=[]):
     path = path + [start]
     if start == end:
