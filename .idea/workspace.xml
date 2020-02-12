@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="5fb39458-9b7c-4b5d-9aa9-ee5190953974" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/scenarioImages/scenario4.PNG" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scenarioImages/scenario5.PNG" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stability.py" beforeDir="false" afterPath="$PROJECT_DIR$/stability.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +35,7 @@
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Giavinh\PycharmProjects\Stability\scenarioImages" />
       <recent name="C:\Users\Giavinh\PycharmProjects\Stability" />
     </key>
   </component>
