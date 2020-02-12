@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 ''' Globals just for testing, when importing, run calculate_stability and pass in required params'''
 
 # Initializing example 3D input function would receive (params x=6,y=10,z=6)
-array = numpy.zeros((10, 10, 6))
+array = numpy.zeros((17, 10, 6))
 
 #################################################################################
 ''' Check /scenarioImages for visual representation in Lego Studio (LEGO CAD) '''
@@ -24,25 +24,25 @@ array = numpy.zeros((10, 10, 6))
 
 ''' This block generates a build that should pass stability check: Scenario 2 '''
 
-# Adding 2x4x1 base (width x length x height)
-array[1][0][1] = '1'
-array[2][0][1] = '1'
-array[3][0][1] = '1'
-array[4][0][1] = '1'
-array[1][0][2] = '1'
-array[2][0][2] = '1'
-array[3][0][2] = '1'
-array[4][0][2] = '1'
-
-# Adding 1x1x2 block (width x length x height) on top of base
-array[2][1][1] = '1'
-array[2][2][1] = '1'
-
-# Adding 1x4x1 block on top of 1x1x2 block
-array[2][3][1] = '1'
-array[3][3][1] = '1'
-array[4][3][1] = '1'
-array[5][3][1] = '1'
+# # Adding 2x4x1 base (width x length x height)
+# array[1][0][1] = '1'
+# array[2][0][1] = '1'
+# array[3][0][1] = '1'
+# array[4][0][1] = '1'
+# array[1][0][2] = '1'
+# array[2][0][2] = '1'
+# array[3][0][2] = '1'
+# array[4][0][2] = '1'
+#
+# # Adding 1x1x2 block (width x length x height) on top of base
+# array[2][1][1] = '1'
+# array[2][2][1] = '1'
+#
+# # Adding 1x4x1 block on top of 1x1x2 block
+# array[2][3][1] = '1'
+# array[3][3][1] = '1'
+# array[4][3][1] = '1'
+# array[5][3][1] = '1'
 
 ''' This block generates a build that should pass stability check: Scenario 3 '''
 
@@ -58,22 +58,44 @@ array[5][3][1] = '1'
 # array[2][5][0] = '1'
 # array[3][5][0] = '1'
 
-''' This block generates a build that should pass stability check: Scenario 3 '''
+''' This block generates a build with two structures that should pass stability check: Scenario 4 '''
+
+# # Adding 1x4x1 block
+# array[0][0][1] = '1'
+# array[1][0][1] = '1'
+# array[2][0][1] = '1'
+# array[3][0][1] = '1'
+#
+# # Adding 1x4x1 block on top
+# array[1][1][1] = '1'
+# array[2][1][1] = '1'
+# array[3][1][1] = '1'
+# array[4][1][1] = '1'
+#
+# # Adding separate structure
+# array[8][0][2] = '1'
+# array[9][0][2] = '1'
+# array[8][1][2] = '1'
+# array[9][1][2] = '1'
+# array[8][2][2] = '1'
+# array[9][2][2] = '1'
+# array[8][3][2] = '1'
+# array[9][3][2] = '1'
+# array[8][4][2] = '1'
+# array[9][4][2] = '1'
+#
+# array[9][5][2] = '1'
+# array[10][5][2] = '1'
+# array[11][5][2] = '1'
+# array[12][5][2] = '1'
+
+''' This block generates a build with two structures where one fails stability check: Scenario 5 '''
 
 # Adding 1x4x1 block
 array[0][0][1] = '1'
 array[1][0][1] = '1'
 array[2][0][1] = '1'
 array[3][0][1] = '1'
-
-# Adding 1x4x1 block on top
-array[1][1][1] = '1'
-array[2][1][1] = '1'
-array[3][1][1] = '1'
-array[4][1][1] = '1'
-
-# Adding 1x2x3 block on top
-
 
 # Adding separate structure
 array[8][0][2] = '1'
@@ -86,6 +108,19 @@ array[8][3][2] = '1'
 array[9][3][2] = '1'
 array[8][4][2] = '1'
 array[9][4][2] = '1'
+
+array[9][5][2] = '1'
+array[10][5][2] = '1'
+array[11][5][2] = '1'
+array[12][5][2] = '1'
+array[13][5][2] = '1'
+array[14][5][2] = '1'
+array[15][5][2] = '1'
+array[16][5][2] = '1'
+
+''' This block generates an extremely comprehensive build to test boundaries and speed: Scenario 6 '''
+
+# array = numpy.ones((17, 10, 6))
 
 #################################################################################
 
@@ -184,7 +219,8 @@ def calculate_stability(array_param, x, y, z):
     global graph
     structures_obj = find_structures(array_param)
     structures = structures_obj["structures"]
-    structures_list = structures_obj["structures_list"]
+    if structures > 1:
+        structures_list = structures_obj["structures_list"]
 
     print('%d structure(s) were found within the array' % structures)
 
@@ -205,6 +241,7 @@ def calculate_stability(array_param, x, y, z):
 
     else:
         print(structures_list)
+        overall_stability = True
         for i in structures_list:
             temp_world_array = numpy.zeros((x, y, z))
             for j in i:
@@ -219,34 +256,33 @@ def calculate_stability(array_param, x, y, z):
             if in_support_polygon([x_com, z_com], support_list_x, support_list_z):
                 print('Point (%f, %f) is inside the support polygon' % (x_com, z_com))
                 print('Therefore, the structure is stable.')
-                return {"stability": True, "structures": structures}
             else:
                 print('Point (%f, %f) is not inside the support polygon' % (x_com, z_com))
                 print('Therefore, the structure is unstable.')
-                return {"stability": False, "structures": structures}
+                overall_stability = False
+        return {"stability": overall_stability, "structures": structures}
 
 
 # Function that finds neighbouring coordinates
 def find_adjacent_nodes(array_param, coordinate):
     coord_parsed = coordinate.split("-")
-    if array_param[int(coord_parsed[0]), int(coord_parsed[1]), int(coord_parsed[2])] == 0:
+    if array_param[int(coord_parsed[0]), int(coord_parsed[1]), int(coord_parsed[2])] <= 0:
         return []
 
     neighbours = set()
     x = int(coord_parsed[0])
     y = int(coord_parsed[1])
     z = int(coord_parsed[2])
-
     try:
-        if array_param[x + 1][y][z] == 1:
+        if array_param[x + 1][y][z] == 1 and x != len(array_param)-1:
             neighbours.add(str(x+1) + "-" + str(y) + "-" + str(z))
-        if array_param[x - 1][y][z] == 1:
+        if array_param[x - 1][y][z] == 1 and x != 0:
             neighbours.add(str(x-1) + "-" + str(y) + "-" + str(z))
-        if array_param[x][y][z + 1] == 1:
+        if array_param[x][y][z + 1] == 1 and z != len(array_param[0][0])-1:
             neighbours.add(str(x) + "-" + str(y) + "-" + str(z+1))
-        if array_param[x][y][z - 1] == 1:
+        if array_param[x][y][z - 1] == 1 and z != 0:
             neighbours.add(str(x) + "-" + str(y) + "-" + str(z-1))
-        if array_param[x][y + 1][z] == 1:
+        if array_param[x][y + 1][z] == 1 and y != len(array_param[0])-1:
             neighbours.add(str(x) + "-" + str(y+1) + "-" + str(z))
         return neighbours
     except:
@@ -308,9 +344,10 @@ def find_structures(array_param):
                         occupied_x_z_list.append([x, y, z])
 
     if len(array_param) * len(array_param[x, y]) == len(occupied_x_z_list):
-        return 1
+        return {"structures": 1}
 
     for i in occupied_x_z_list:
+
         coord_string_one = str(i[0]) + "-" + str(i[1]) + "-" + str(i[2])
         for j in occupied_x_z_list:
             coord_string_two = str(j[0]) + "-" + str(j[1]) + "-" + str(j[2])
@@ -336,8 +373,6 @@ def find_structures(array_param):
                         for value in temp_dict_two[key]:
                             structures_set.add(value)
                     structures_list.append(structures_set)
-
-                    # structures_list.append(temp_dict_two.keys())
                     structures += 1
     return {"structures": structures, "structures_list": structures_list}
 
@@ -360,6 +395,5 @@ def find_shortest_path(graph_param, start, end, path=[]):
 
 
 ''' Executing code'''
-calculate_stability(array, 10, 10, 6)
-
+calculate_stability(array, 17, 10, 6)
 # General function will take in parameters x, y, z for building the numpy.zeros array
