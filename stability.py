@@ -377,7 +377,7 @@ def find_structures(array_param):
     return {"structures": structures, "structures_list": structures_list}
 
 
-# Returns null if no path between coordinates (for multiple structure finding)
+# Returns null (None) if no path between coordinates (for multiple structure finding)
 def find_shortest_path(graph_param, start, end, path=[]):
     path = path + [start]
     if start == end:
