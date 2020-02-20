@@ -180,7 +180,7 @@ def find_center_of_mass(array_param):
     for x in range(len(array_param)):
         for y in range(len(array_param[x])):
             for z in range(len(array_param[x, y])):
-                if array_param[x, y, z] == 1:
+                if array_param[x, y, z] != 0:
                     mass_list_x.append(x+0.5)
                     mass_list_y.append(y+0.5)
                     mass_list_z.append(z+0.5)
@@ -274,15 +274,15 @@ def find_adjacent_nodes(array_param, coordinate):
     y = int(coord_parsed[1])
     z = int(coord_parsed[2])
     try:
-        if array_param[x + 1][y][z] == 1 and x != len(array_param)-1:
+        if array_param[x + 1][y][z] != 0 and x != len(array_param)-1:
             neighbours.add(str(x+1) + "-" + str(y) + "-" + str(z))
-        if array_param[x - 1][y][z] == 1 and x != 0:
+        if array_param[x - 1][y][z] != 0 and x != 0:
             neighbours.add(str(x-1) + "-" + str(y) + "-" + str(z))
-        if array_param[x][y][z + 1] == 1 and z != len(array_param[0][0])-1:
+        if array_param[x][y][z + 1] != 0 and z != len(array_param[0][0])-1:
             neighbours.add(str(x) + "-" + str(y) + "-" + str(z+1))
-        if array_param[x][y][z - 1] == 1 and z != 0:
+        if array_param[x][y][z - 1] != 0 and z != 0:
             neighbours.add(str(x) + "-" + str(y) + "-" + str(z-1))
-        if array_param[x][y + 1][z] == 1 and y != len(array_param[0])-1:
+        if array_param[x][y + 1][z] != 0 and y != len(array_param[0])-1:
             neighbours.add(str(x) + "-" + str(y+1) + "-" + str(z))
         return neighbours
     except:
@@ -338,7 +338,7 @@ def find_structures(array_param):
         for y in range(len(array_param[x])):
             if y == 0:
                 for z in range(len(array_param[x, y])):
-                    if array_param[x, y, z] == 1:
+                    if array_param[x, y, z] != 0:
                         # '-' is delimiter between coordinates
                         recursive_search(array_param, str(x)+"-"+str(y)+"-"+str(z))
                         occupied_x_z_list.append([x, y, z])
