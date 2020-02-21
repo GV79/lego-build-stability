@@ -10,6 +10,9 @@ graph = {}  # Dictionary for detecting multiple structures
 enable_comments = True  # Enable info/debugging comments
 disable_graph = True  # Enable plotting support polygon
 
+# To do
+# Instead of passing x, y, and z for multiple structures should instead find minimal bounds
+
 
 # Function that uses Delaunay Triangulation to determine whether a point exists in the hull
 def in_hull(p, hull):
@@ -427,6 +430,7 @@ if __name__ == "__main__":
     # array = numpy.ones((17, 10, 6))
 
     ''' Complex one structure build with no border: Scenario 7 '''
+
     # array = numpy.loadtxt('scenario7.txt').reshape((4, 6, 3))
 
     #################################################################################

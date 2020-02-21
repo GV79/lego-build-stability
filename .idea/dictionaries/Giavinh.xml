@@ -3,6 +3,7 @@
     <words>
       <w>coords</w>
       <w>delaunay</w>
+      <w>loadtxt</w>
     </words>
   </dictionary>
 </component>
