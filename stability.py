@@ -397,32 +397,32 @@ if __name__ == "__main__":
 
     ''' This block generates a build with two structures where one fails stability check: Scenario 5 '''
 
-    # Adding 1x4x1 block
-    array[0][0][1] = '1'
-    array[1][0][1] = '1'
-    array[2][0][1] = '1'
-    array[3][0][1] = '1'
-
-    # Adding separate structure
-    array[8][0][2] = '1'
-    array[9][0][2] = '1'
-    array[8][1][2] = '1'
-    array[9][1][2] = '1'
-    array[8][2][2] = '1'
-    array[9][2][2] = '1'
-    array[8][3][2] = '1'
-    array[9][3][2] = '1'
-    array[8][4][2] = '1'
-    array[9][4][2] = '1'
-
-    array[9][5][2] = '1'
-    array[10][5][2] = '1'
-    array[11][5][2] = '1'
-    array[12][5][2] = '1'
-    array[13][5][2] = '1'
-    array[14][5][2] = '1'
-    array[15][5][2] = '1'
-    array[16][5][2] = '1'
+    # # Adding 1x4x1 block
+    # array[0][0][1] = '1'
+    # array[1][0][1] = '1'
+    # array[2][0][1] = '1'
+    # array[3][0][1] = '1'
+    #
+    # # Adding separate structure
+    # array[8][0][2] = '1'
+    # array[9][0][2] = '1'
+    # array[8][1][2] = '1'
+    # array[9][1][2] = '1'
+    # array[8][2][2] = '1'
+    # array[9][2][2] = '1'
+    # array[8][3][2] = '1'
+    # array[9][3][2] = '1'
+    # array[8][4][2] = '1'
+    # array[9][4][2] = '1'
+    #
+    # array[9][5][2] = '1'
+    # array[10][5][2] = '1'
+    # array[11][5][2] = '1'
+    # array[12][5][2] = '1'
+    # array[13][5][2] = '1'
+    # array[14][5][2] = '1'
+    # array[15][5][2] = '1'
+    # array[16][5][2] = '1'
 
     ''' This block generates an extremely comprehensive build to test boundaries and speed: Scenario 6 '''
 
@@ -430,7 +430,7 @@ if __name__ == "__main__":
 
     ''' Complex one structure build with no border: Scenario 7 '''
 
-    # array = numpy.loadtxt('scenario7.txt').reshape((4, 6, 3))
+    array = numpy.loadtxt('scenario7.txt').reshape((4, 6, 3))
 
     #################################################################################
 
