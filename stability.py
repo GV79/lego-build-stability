@@ -10,8 +10,7 @@ graph = {}  # Dictionary for detecting multiple structures
 enable_comments = True  # Enable info/debugging comments
 disable_graph = True  # Enable plotting support polygon
 
-# To do
-# Instead of passing x, y, and z for multiple structures should instead find minimal bounds
+# To do: instead of passing x, y, and z for multiple structures should instead find minimal bounds
 
 
 # Function that uses Delaunay Triangulation to determine whether a point exists in the hull
